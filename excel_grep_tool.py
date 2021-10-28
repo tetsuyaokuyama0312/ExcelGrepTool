@@ -5,6 +5,7 @@ import warnings
 from file_extractor import extract_files
 from grep import grep
 from parallel import invoke_and_join_all
+import result_writer as writer
 
 EXCEL_FILE_EXTENSIONS = ('.xlsx', '.xlsm')
 
@@ -19,12 +20,7 @@ def process(input_paths: list, grep_words: list):
     grep_matched_results = itertools.chain.from_iterable(grep_matched_results_list)
     grep_matched_results = sorted(grep_matched_results, key=lambda x: (x.file_path, x.cell_location, x.grep_word))
 
-    print()
-    print('=============== RESULT ===============')
-    for result in grep_matched_results:
-        print_grep_matched_result(result)
-        print()
-    print('======================================')
+    writer.write_results(grep_matched_results)
 
 
 def create_task(target_files: list):
@@ -41,25 +37,6 @@ def create_task(target_files: list):
     return task
 
 
-def print_grep_matched_result(result):
-    print('--------------------------------------')
-    print('File path:')
-    indent_print(result.file_path)
-    print('Sheet tile:')
-    indent_print(result.sheet_title)
-    print('Cell location:')
-    indent_print(result.cell_location)
-    print('Matched text:')
-    indent_print(result.matched_text)
-    print('Grep word:')
-    indent_print(result.grep_word)
-    print('--------------------------------------')
-
-
-def indent_print(value, indent_level=1):
-    print('{}{}'.format('\t' * indent_level, value))
-
-
 if __name__ == '__main__':
     warnings.simplefilter('ignore')
 
@@ -67,3 +44,5 @@ if __name__ == '__main__':
     grep_words = input('Enter grep words(semicolon(;) is interpreted as a separator): ').split(';')
 
     process(input_file_paths, grep_words)
+
+    print('FINISHED!!')
